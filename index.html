@@ -4,9 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
     <title>CRE Holdings LLC</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.3/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -125,6 +130,101 @@
         .progress-line {
             transition: width 0.3s ease;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .bg-zoom-effect {
+            background-size: cover;
+            background-position: center;
+            transition: transform 10s ease, opacity 1s ease, transform 1s ease;
+        }
+
+        @keyframes zoomEffect {
+            0% {
+                transform: scale(1) translateX(0);
+            }
+
+            100% {
+                transform: scale(1.1) translateX(0);
+            }
+        }
+
+        .slide-0,
+        .slide-1,
+        .slide-2 {
+            animation: zoomEffect 15s infinite alternate;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .hover-scale {
+            transition: transform 0.4s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 100, 255, 0.2);
+        }
+
+
+        .hover-float {
+            transition: transform 0.4s ease;
+        }
+
+        .hover-float:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 100, 255, 0.25);
+        }
+
+
+        .contact-icon {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .contact-item:hover .contact-icon {
+            transform: scale(1.2) rotate(5deg);
+            color: #60a5fa;
+        }
+
+
+        .text-reveal {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+
+        .input-animation {
+            transition: all 0.3s ease;
+        }
+
+        .input-animation:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.2);
+        }
+
+
+        .button-pulse {
+            animation: none;
+        }
+
+        .button-pulse:hover {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            }
+        }
     </style>
 </head>
 
@@ -144,9 +244,8 @@
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <button @click="activeSection = 'home'"
-                        class="text-2xl font-bold hover:text-blue-400 transition duration-300">
-                        CRE<span class="text-blue-500">Holdings</span>
+                    <button @click="activeSection = 'home'" class="hover:opacity-80 transition duration-300">
+                        <img src="cre-blue-gray.png" alt="CRE Holdings Logo" class="h-12 w-18">
                     </button>
                 </div>
 
@@ -204,13 +303,14 @@
         </div>
     </header>
 
-    <!-- Mobile Menu Overlay -->
-    <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+    <!-- Mobile Menu -->
+    <div x-show="mobileMenuOpen" x-cloak x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
         class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-95"
         @click.self="mobileMenuOpen = false">
+
         <nav class="flex flex-col items-center space-y-8">
             <a href="#" @click.prevent="activeSection = 'home'; mobileMenuOpen = false"
                 class="text-2xl font-medium hover:text-blue-400 transition duration-300">Home</a>
@@ -223,6 +323,7 @@
         </nav>
     </div>
 
+
     <!-- Main Content -->
     <main>
         <!-- Home Section -->
@@ -233,7 +334,7 @@
                 currentSlide: 0,
                 slides: [
                     {
-                        image: '6050 Terminal Avenue.JPG',
+                        image: 'Talamine 1.JPG',
                         title: 'Strategic Commercial Real Estate',
                         subtitle: 'Transforming spaces with vision and expertise'
                     },
@@ -243,7 +344,7 @@
                         subtitle: 'Closing deals where others cannot'
                     },
                     {
-                        image: 'Talamine 1.JPG',
+                        image: '6050 Terminal Avenue.JPG',
                         title: 'Innovative Solutions',
                         subtitle: 'Creating value through redevelopment'
                     }
@@ -251,46 +352,121 @@
                 autoplay: null,
                 init() {
                     this.autoplay = setInterval(() => {
-                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                        this.nextSlide();
                     }, 5000);
                     this.$watch('activeSection', (value) => {
                         if (value !== 'home') {
                             clearInterval(this.autoplay);
                         } else {
                             this.autoplay = setInterval(() => {
-                                this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                                this.nextSlide();
                             }, 5000);
                         }
                     });
+                    
+                    // Initialize GSAP animations
+                    this.initGSAP();
                 },
                 setSlide(index) {
+                    // Smoothly transition to new slide
+                    const currentEl = document.querySelector(`.slide-${this.currentSlide}`);
+                    const nextEl = document.querySelector(`.slide-${index}`);
+                    
+                    // Determine direction for animation
+                    const direction = index > this.currentSlide ? 'next' : 'prev';
+                    
+                    // Animate out current slide
+                    gsap.to(currentEl, {
+                        duration: 1,
+                        x: direction === 'next' ? '-100%' : '100%',
+                        opacity: 0,
+                        ease: 'power2.inOut'
+                    });
+                    
+                    // Animate in next slide
+                    gsap.fromTo(nextEl, 
+                        { 
+                            x: direction === 'next' ? '100%' : '-100%',
+                            opacity: 0
+                        },
+                        {
+                            duration: 1,
+                            x: '0%',
+                            opacity: 1,
+                            ease: 'power2.inOut'
+                        }
+                    );
+                    
                     this.currentSlide = index;
+                    
+                    // Reset autoplay
                     clearInterval(this.autoplay);
                     this.autoplay = setInterval(() => {
-                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                        this.nextSlide();
                     }, 5000);
+                },
+                nextSlide() {
+                    const newIndex = (this.currentSlide + 1) % this.slides.length;
+                    this.setSlide(newIndex);
+                },
+                prevSlide() {
+                    const newIndex = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+                    this.setSlide(newIndex);
+                },
+                initGSAP() {
+                    gsap.registerPlugin(ScrollTrigger);
+                    
+                    // Animate title on page load
+                    gsap.from('.hero-title', {
+                        duration: 1.2,
+                        y: 50,
+                        opacity: 0,
+                        ease: 'power3.out',
+                        delay: 0.5
+                    });
+                    
+                    // Animate subtitle
+                    gsap.from('.hero-subtitle', {
+                        duration: 1.2,
+                        y: 30,
+                        opacity: 0,
+                        ease: 'power3.out',
+                        delay: 0.8
+                    });
+                    
+                    // Animate CTA button
+                    gsap.from('.hero-cta', {
+                        duration: 1,
+                        scale: 0.8,
+                        opacity: 0,
+                        ease: 'back.out(1.7)',
+                        delay: 1.1
+                    });
+                    
                 }
             }">
-            <template x-for="(slide, index) in slides" :key="index">
-                <div x-show="currentSlide === index" x-transition:enter="transition ease-out duration-1500"
-                    x-transition:enter-start="opacity-0 scale-110" x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-1500"
-                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                    class="absolute inset-0">
-                    <div class="absolute inset-0 bg-black opacity-40"></div>
-                    <img :src="slide.image" class="w-full h-screen object-cover" alt="CRE Holdings">
-                </div>
-            </template>
+            <!-- Slider with Zoom Effect and Smooth Transitions -->
+            <div class="relative h-screen overflow-hidden">
+                <template x-for="(slide, index) in slides" :key="index">
+                    <div x-show="true"
+                        :class="`slide-${index} absolute inset-0 bg-zoom-effect ${index === currentSlide ? 'z-10' : 'z-0'}`"
+                        :style="`background-image: url('${slide.image}'); opacity: ${index === currentSlide ? 1 : 0}; transform: translateX(${index === currentSlide ? '0%' : index > currentSlide ? '100%' : '-100%'});`">
+                        <div class="absolute inset-0 bg-black opacity-40"></div>
+                    </div>
+                </template>
 
-            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black opacity-70"></div>
 
-            <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
+            </div>
+
+            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black opacity-70 z-20"></div>
+
+            <div class="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-30">
                 <template x-for="(slide, index) in slides" :key="index">
                     <div x-show="currentSlide === index" class="max-w-5xl mx-auto">
-                        <h1 x-text="slide.title" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 slide-up"></h1>
-                        <p x-text="slide.subtitle" class="text-xl md:text-2xl text-gray-200 mb-10 slide-up stagger-1">
-                        </p>
-                        <div class="slide-up stagger-2">
+                        <h1 x-text="slide.title" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 hero-title">
+                        </h1>
+                        <p x-text="slide.subtitle" class="text-xl md:text-2xl text-gray-200 mb-10 hero-subtitle"></p>
+                        <div class="hero-cta">
                             <button @click="activeSection = 'portfolio'"
                                 class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-lg">
                                 View our portfolio
@@ -301,7 +477,7 @@
             </div>
 
             <!-- Progress Indicator -->
-            <div class="absolute bottom-16 left-0 right-0 flex justify-center items-center space-x-3 z-20">
+            <div class="absolute bottom-16 left-0 right-0 flex justify-center items-center space-x-3 z-30 mb-6">
                 <template x-for="(_, index) in slides" :key="index">
                     <button @click="setSlide(index)"
                         class="w-12 h-1 rounded-full transition-all duration-300 focus:outline-none"
@@ -310,7 +486,7 @@
             </div>
 
             <!-- Scroll Indicator -->
-            <div class="absolute bottom-8 left-0 right-0 flex justify-center z-20">
+            <div class="absolute bottom-8 left-0 right-0 flex justify-center z-30">
                 <div class="animate-bounce">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white opacity-70" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
@@ -321,139 +497,305 @@
             </div>
         </section>
 
+        <!-- Stats Counter Section  -->
+        <section class="stats-section bg-gray-900 py-20 px-4 overflow-x-hidden" x-show="activeSection === 'home'">
+            <div class="container mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-16 stats-heading">Our Track Record
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                    <div class="stats-item p-6 bg-gray-800 rounded-lg shadow-lg">
+                        <div class="counter-value text-4xl md:text-5xl font-bold text-blue-500 mb-2" data-target="150">0
+                        </div>
+                        <div class="text-gray-300 text-lg">Properties Managed</div>
+                    </div>
+
+                    <div class="stats-item p-6 bg-gray-800 rounded-lg shadow-lg">
+                        <div class="counter-value text-4xl md:text-5xl font-bold text-blue-500 mb-2" data-target="25">0
+                        </div>
+                        <div class="text-gray-300 text-lg">Years Experience</div>
+                    </div>
+
+                    <div class="stats-item p-6 bg-gray-800 rounded-lg shadow-lg">
+                        <div class="counter-value text-4xl md:text-5xl font-bold text-blue-500 mb-2" data-target="500">0
+                        </div>
+                        <div class="text-gray-300 text-lg">Happy Clients</div>
+                    </div>
+
+                    <div class="stats-item p-6 bg-gray-800 rounded-lg shadow-lg">
+                        <div class="counter-value text-4xl md:text-5xl font-bold text-blue-500 mb-2" data-target="85">0
+                        </div>
+                        <div class="text-gray-300 text-lg">Million in Deals</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const counters = document.querySelectorAll(".counter-value");
+                const statsSection = document.querySelector(".stats-section");
+                let hasAnimated = false;
+
+                function animateCounters() {
+                    counters.forEach((counter) => {
+                        const target = +counter.getAttribute("data-target");
+                        let start = 0;
+                        const duration = 4000;
+                        const increment = Math.ceil(target / (duration / 16));
+
+                        function updateCounter() {
+                            start += increment;
+                            if (start >= target) {
+                                counter.innerText = target + "+"; // Append `+`
+                            } else {
+                                counter.innerText = start + "+"; // Append `+`
+                                requestAnimationFrame(updateCounter);
+                            }
+                        }
+
+                        updateCounter();
+                    });
+                }
+
+                function triggerAnimation(entries, observer) {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && !hasAnimated) {
+                            hasAnimated = true;
+                            animateCounters();
+
+                            gsap.from(".stats-item", {
+                                opacity: 0,
+                                scale: 0.7,
+                                duration: 1.2,
+                                stagger: 0.2,
+                                ease: "power3.out",
+                            });
+
+                            observer.unobserve(statsSection);
+                        }
+                    });
+                }
+
+                const observer = new IntersectionObserver(triggerAnimation, {
+                    threshold: 0.3,
+                });
+
+                observer.observe(statsSection);
+            });
+        </script>
+
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                gsap.registerPlugin(ScrollTrigger);
+
+                // HERO SECTION ANIMATIONS
+                gsap.from(".hero-title", {
+                    opacity: 0,
+                    y: 50,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+
+                gsap.from(".hero-subtitle", {
+                    opacity: 0,
+                    y: 30,
+                    delay: 0.3,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+
+
+
+                // IMAGE SLIDER EFFECT
+                gsap.utils.toArray(".slide").forEach((slide, index) => {
+                    gsap.from(slide, {
+                        opacity: 0,
+                        scale: 0.8,
+                        duration: 1,
+                        delay: index * 0.5,
+                        ease: "power3.out"
+                    });
+                });
+
+
+            });
+
+        </script>
+
+
+
         <!-- Portfolio Section -->
         <section x-show="activeSection === 'portfolio'" x-transition:enter="transition-opacity duration-500"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition-opacity duration-500" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0" class="min-h-screen relative" x-data="{
-                currentProject: 0,
-                isTransitioning: false,
-                projects: [
-                    {
-                        name: 'Janitell',
-                        description: '67,000 SF, Flex/industrial, Colorado Springs',
-                        image: 'Janitell w. outline.jpg',
-                        stats: [
-                            { label: 'Size', value: '67,000 SF' },
-                            { label: 'Type', value: 'Flex/Industrial' },
-                            { label: 'Location', value: 'Colorado Springs, CO' }
-                        ]
-                    },
-                    {
-                        name: 'Talamine Aerial',
-                        description: '44,000 SF, Flex/industrial, Colorado Springs',
-                        image: 'Talamine 1.JPG',
-                        stats: [
-                            { label: 'Size', value: '44,000 SF' },
-                            { label: 'Type', value: 'Flex/Industrial' },
-                            { label: 'Location', value: 'Colorado Springs, CO' }
-                        ]
-                    },
-                    {
-                        name: 'United Rentals',
-                        description: 'United Rentals, Colorado Springs',
-                        image: '/api/placeholder/1920/1080',
-                        stats: [
-                            { label: 'Tenant', value: 'United Rentals' },
-                            { label: 'Location', value: 'Colorado Springs, CO' }
-                        ]
-                    },
-                    {
-                        name: 'Pueblo Site',
-                        description: 'Redevelopment of Former Colorado Department of Transportation HDQ, Pueblo, CO',
-                        image: 'Pueblo 2.JPG',
-                        stats: [
-                            { label: 'Project', value: 'Redevelopment' },
-                            { label: 'Prior Use', value: 'CDOT HDQ' },
-                            { label: 'Location', value: 'Pueblo, CO' }
-                        ]
-                    },
-                    {
-                        name: 'Lincoln Center',
-                        description: 'Redevelopment of Former Lincoln Elementary School to Mixed Use, Colorado Springs (Sold After Redevelopment).',
-                        image: 'Lincoln Center 1.jpg',
-                        stats: [
-                            { label: 'Project', value: 'Redevelopment' },
-                            { label: 'Prior Use', value: 'Elementary School' },
-                            { label: 'New Use', value: 'Mixed Use' },
-                            { label: 'Status', value: 'Sold After Redevelopment' }
-                        ]
-                    },
-                    {
-                        name: 'Circle',
-                        description: '70,000 SF Retail Development, Colorado Springs',
-                        image: 'circle.png',
-                        stats: [
-                            { label: 'Size', value: '70,000 SF' },
-                            { label: 'Type', value: 'Retail Development' },
-                            { label: 'Location', value: 'Colorado Springs, CO' }
-                        ]
-                    },
-                    {
-                        name: 'Woodland Park 800 Research',
-                        description: 'Multi-Tenant Office, Woodland Park (Sold)',
-                        image: 'Woodland Park.png',
-                        stats: [
-                            { label: 'Type', value: 'Multi-Tenant Office' },
-                            { label: 'Location', value: 'Woodland Park, CO' },
-                            { label: 'Status', value: 'Sold' }
-                        ]
-                    }
-                ],
-                nextProject() {
-                    if (this.isTransitioning) return;
-                    this.isTransitioning = true;
-                    setTimeout(() => {
-                        this.currentProject = (this.currentProject + 1) % this.projects.length;
-                        this.isTransitioning = false;
-                    }, 500);
-                },
-                prevProject() {
-                    if (this.isTransitioning) return;
-                    this.isTransitioning = true;
-                    setTimeout(() => {
-                        this.currentProject = (this.currentProject - 1 + this.projects.length) % this.projects.length;
-                        this.isTransitioning = false;
-                    }, 500);
-                },
-                goToProject(index) {
-                    if (this.isTransitioning || this.currentProject === index) return;
-                    this.isTransitioning = true;
-                    setTimeout(() => {
-                        this.currentProject = index;
-                        this.isTransitioning = false;
-                    }, 500);
-                }
-            }">
+        currentProject: 0,
+        isTransitioning: false,
+        autoSlideInterval: null,
+        projects: [
+            {
+                name: 'Janitell',
+                description: '67,000 SF, Flex/industrial, Colorado Springs',
+                image: 'Janitell w. outline.jpg',
+                stats: [
+                    { label: 'Size', value: '67,000 SF' },
+                    { label: 'Type', value: 'Flex/Industrial' },
+                    { label: 'Location', value: 'Colorado Springs, CO' }
+                ]
+            },
+            {
+                name: 'Talamine Aerial',
+                description: '44,000 SF, Flex/industrial, Colorado Springs',
+                image: 'Talamine 1.JPG',
+                stats: [
+                    { label: 'Size', value: '44,000 SF' },
+                    { label: 'Type', value: 'Flex/Industrial' },
+                    { label: 'Location', value: 'Colorado Springs, CO' }
+                ]
+            },
+            {
+                name: 'United Rentals',
+                description: 'United Rentals, Colorado Springs',
+                image: 'united_rentals.jpg',
+                stats: [
+                    { label: 'Tenant', value: 'United Rentals' },
+                    { label: 'Location', value: 'Colorado Springs, CO' }
+                ]
+            },
+            {
+                name: 'Pueblo Site',
+                description: 'Redevelopment of Former Colorado Department of Transportation HDQ, Pueblo, CO',
+                image: 'Pueblo 2.JPG',
+                stats: [
+                    { label: 'Project', value: 'Redevelopment' },
+                    { label: 'Prior Use', value: 'CDOT HDQ' },
+                    { label: 'Location', value: 'Pueblo, CO' }
+                ]
+            },
+            {
+                name: 'Lincoln Center',
+                description: 'Redevelopment of Former Lincoln Elementary School to Mixed Use, Colorado Springs (Sold After Redevelopment).',
+                image: 'Lincoln Center 1.jpg',
+                stats: [
+                    { label: 'Project', value: 'Redevelopment' },
+                    { label: 'Prior Use', value: 'Elementary School' },
+                    { label: 'New Use', value: 'Mixed Use' },
+                    { label: 'Status', value: 'Sold After Redevelopment' }
+                ]
+            },
+            {
+                name: 'Circle',
+                description: '70,000 SF Retail Development, Colorado Springs',
+                image: 'circle.png',
+                stats: [
+                    { label: 'Size', value: '70,000 SF' },
+                    { label: 'Type', value: 'Retail Development' },
+                    { label: 'Location', value: 'Colorado Springs, CO' }
+                ]
+            },
+            {
+                name: 'Woodland Park 800 Research',
+                description: 'Multi-Tenant Office, Woodland Park (Sold)',
+                image: 'Woodland Park.png',
+                stats: [
+                    { label: 'Type', value: 'Multi-Tenant Office' },
+                    { label: 'Location', value: 'Woodland Park, CO' },
+                    { label: 'Status', value: 'Sold' }
+                ]
+            }
+        ],
+        nextProject() {
+            if (this.isTransitioning) return;
+            this.isTransitioning = true;
+            setTimeout(() => {
+                this.currentProject = (this.currentProject + 1) % this.projects.length;
+                this.isTransitioning = false;
+            }, 500);
+        },
+        prevProject() {
+            if (this.isTransitioning) return;
+            this.isTransitioning = true;
+            setTimeout(() => {
+                this.currentProject = (this.currentProject - 1 + this.projects.length) % this.projects.length;
+                this.isTransitioning = false;
+            }, 500);
+        },
+        goToProject(index) {
+            if (this.isTransitioning || this.currentProject === index) return;
+            this.isTransitioning = true;
+            setTimeout(() => {
+                this.currentProject = index;
+                this.isTransitioning = false;
+            }, 500);
+            this.resetAutoSlide(); // Reset the auto-slide timer when manually changing
+        },
+        startAutoSlide() {
+            this.autoSlideInterval = setInterval(() => {
+                this.nextProject();
+            }, 5000); // Change slide every 5 seconds
+        },
+        stopAutoSlide() {
+            if (this.autoSlideInterval) {
+                clearInterval(this.autoSlideInterval);
+            }
+        },
+        resetAutoSlide() {
+            this.stopAutoSlide();
+            this.startAutoSlide();
+        },
+        init() {
+            this.startAutoSlide();
+            
+            // Pause auto-slide when hovering over the project or thumbnails
+            const container = this.$el;
+            container.addEventListener('mouseenter', () => this.stopAutoSlide());
+            container.addEventListener('mouseleave', () => this.startAutoSlide());
+        }
+    }">
             <!-- Portfolio Project Viewer -->
-            <div class="h-screen relative overflow-hidden">
+            <div class="h-screen relative overflow-hidden" @mouseenter="stopAutoSlide" @mouseleave="startAutoSlide">
                 <template x-for="(project, index) in projects" :key="index">
                     <div x-show="currentProject === index" x-transition:enter="transition ease-out duration-1000"
-                        x-transition:enter-start="opacity-0 translate-x-full"
-                        x-transition:enter-end="opacity-100 translate-x-0"
+                        x-transition:enter-start="opacity-0 transform scale-105"
+                        x-transition:enter-end="opacity-100 transform scale-100"
                         x-transition:leave="transition ease-in duration-1000"
-                        x-transition:leave-start="opacity-100 translate-x-0"
-                        x-transition:leave-end="opacity-0 -translate-x-full" class="absolute inset-0">
-                        <img :src="project.image" :alt="project.name" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-90"></div>
+                        x-transition:leave-start="opacity-100 transform scale-100"
+                        x-transition:leave-end="opacity-0 transform scale-95" class="absolute inset-0">
+                        <img :src="project.image" :alt="project.name"
+                            class="w-full h-full object-cover transform transition-transform duration-10000 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-80"></div>
 
                         <div class="absolute bottom-0 inset-x-0 p-8 md:p-16">
                             <div class="max-w-4xl">
-                                <div class="flex items-center text-blue-400 space-x-2 mb-2 fade-in">
+                                <div class="flex items-center text-blue-400 space-x-2 mb-2"
+                                    x-transition:enter="transition-all duration-700 delay-300"
+                                    x-transition:enter-start="opacity-0 transform -translate-x-10"
+                                    x-transition:enter-end="opacity-100 transform translate-x-0">
                                     <div class="w-8 h-0.5 bg-blue-400"></div>
                                     <span class="text-sm font-semibold tracking-wider uppercase">Property</span>
                                 </div>
 
-                                <h2 x-text="project.name" class="text-4xl md:text-6xl font-bold mb-6 fade-in stagger-1">
+                                <h2 x-text="project.name" class="text-4xl md:text-6xl font-bold mb-6"
+                                    x-transition:enter="transition-all duration-700 delay-500"
+                                    x-transition:enter-start="opacity-0 transform -translate-y-10"
+                                    x-transition:enter-end="opacity-100 transform translate-y-0">
                                 </h2>
 
-                                <p x-text="project.description"
-                                    class="text-xl text-gray-300 mb-8 max-w-2xl fade-in stagger-2"></p>
+                                <p x-text="project.description" class="text-xl text-gray-300 mb-8 max-w-2xl"
+                                    x-transition:enter="transition-all duration-700 delay-700"
+                                    x-transition:enter-start="opacity-0 transform translate-y-10"
+                                    x-transition:enter-end="opacity-100 transform translate-y-0">
+                                </p>
 
-                                <div
-                                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12 fade-in stagger-3">
+                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
                                     <template x-for="(stat, statIndex) in project.stats" :key="statIndex">
-                                        <div class="glass-card rounded-lg p-4">
+                                        <div class="glass-card rounded-lg p-4 transform transition-all duration-700"
+                                            :style="`transition-delay: ${800 + (statIndex * 100)}ms`"
+                                            x-transition:enter="transition-all duration-700"
+                                            x-transition:enter-start="opacity-0 transform scale-90"
+                                            x-transition:enter-end="opacity-100 transform scale-100">
                                             <div class="text-sm text-blue-400 mb-1" x-text="stat.label"></div>
                                             <div class="font-semibold" x-text="stat.value"></div>
                                         </div>
@@ -466,8 +808,8 @@
 
                 <!-- Navigation Controls -->
                 <div class="absolute top-1/2 left-4 transform -translate-y-1/2 z-10">
-                    <button @click="prevProject"
-                        class="bg-black bg-opacity-30 hover:bg-opacity-50 text-white rounded-full p-3 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button @click="prevProject; resetAutoSlide()"
+                        class="bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -476,8 +818,8 @@
                 </div>
 
                 <div class="absolute top-1/2 right-4 transform -translate-y-1/2 z-10">
-                    <button @click="nextProject"
-                        class="bg-black bg-opacity-30 hover:bg-opacity-50 text-white rounded-full p-3 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button @click="nextProject; resetAutoSlide()"
+                        class="bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-3 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -486,18 +828,28 @@
                 </div>
 
                 <!-- Progress Bar -->
-                <div class="absolute bottom-0 left-0 right-0 flex items-center h-1 bg-gray-800">
-                    <div class="bg-blue-500 h-full progress-line"
+                <div class="absolute bottom-0 left-0 right-0 flex items-center h-2 bg-gray-800 z-10">
+                    <div class="bg-blue-500 h-full transition-all duration-500 ease-out"
                         :style="`width: ${((currentProject + 1) / projects.length) * 100}%`"></div>
                 </div>
 
-                <!-- Project Thumbnails -->
-                <div class="absolute top-0 left-0 right-0 p-4 pt-24 overflow-x-auto flex space-x-2 pb-2">
+                <!-- Project Thumbnails with Enhanced Visibility -->
+                <div
+                    class="absolute top-0 left-0 right-0 bg-black bg-opacity-60 backdrop-blur-sm p-4 pt-24 overflow-x-auto flex space-x-3 pb-4 shadow-lg z-10">
                     <template x-for="(project, index) in projects" :key="index">
                         <button @click="goToProject(index)"
-                            class="flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            :class="currentProject === index ? 'ring-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100'">
-                            <img :src="project.image" :alt="project.name" class="w-full h-full object-cover">
+                            class="flex-shrink-0 w-28 h-20 rounded-lg overflow-hidden transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transform hover:translate-y-1 shadow-lg"
+                            :class="currentProject === index ? 'ring-2 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'">
+                            <div class="relative w-full h-full">
+                                <img :src="project.image" :alt="project.name" class="w-full h-full object-cover">
+                                <div :class="currentProject === index ? 'bg-blue-500' : 'bg-gray-800'"
+                                    class="absolute bottom-0 left-0 right-0 h-1 transition-colors duration-300"></div>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30"
+                                    :class="currentProject === index ? 'opacity-0' : 'opacity-70'">
+                                    <span class="text-xs text-white font-medium px-2 text-center"
+                                        x-text="project.name"></span>
+                                </div>
+                            </div>
                         </button>
                     </template>
                 </div>
@@ -514,142 +866,182 @@
                     <h2 class="text-4xl md:text-5xl font-bold text-gradient mb-4">About Us</h2>
                     <div class="w-24 h-1 bg-blue-500 mx-auto"></div>
                 </div>
-
+        
                 <div class="max-w-6xl mx-auto">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
-                        <div class="order-2 lg:order-1 scale-in">
-                            <h3 class="text-3xl font-bold mb-6">Our Story</h3>
-                            <p class="text-lg text-gray-300 mb-6">
+                        <div class="order-2 lg:order-1 scale-in opacity-0" x-data="{ hover: false, shown: false }"
+                            x-init="setTimeout(() => { shown = true }, 1500)" x-on:mouseenter="hover = true"
+                            x-on:mouseleave="hover = false" :class="{ 'opacity-100': shown, 'opacity-0': !shown }">
+                            <h3 class="text-3xl font-bold mb-6 transition-all duration-300 hover:text-blue-400">Our Story</h3>
+                            <p class="text-lg text-gray-300 mb-6 transition-all duration-300 hover:text-white">
                                 CRE Holdings, LLC was founded by John Rodgers. John initially began his career as a
                                 commercial real estate broker and established a well-recognized and successful boutique
                                 commercial real estate brokerage firm in Colorado Springs, Peak Commercial Properties,
                                 which he has since exited.
                             </p>
-                            <p class="text-lg text-gray-300 mb-6">
+                            <p class="text-lg text-gray-300 mb-6 transition-all duration-300 hover:text-white">
                                 As a Broker, John was exposed to real estate cycles early in his career, and was able to
                                 work and represent some of the most successful investors in Southern Colorado. With
                                 these valuable experiences, John started practicing what he preached by investing in
                                 Commercial Real Estate and later establishing CRE Holdings, LLC.
                             </p>
-                            <p class="text-lg text-gray-300">
+                            <p class="text-lg text-gray-300 transition-all duration-300 hover:text-white">
                                 CRE Holdings, LLC thrives because of their nimble team, strategic relationships,
                                 experience vendors and management philosophy.
                             </p>
                         </div>
-                        <div class="order-1 lg:order-2 scale-in">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-blue-600 rounded-lg transform -rotate-6"></div>
+                        <div class="order-1 lg:order-2 scale-in opacity-0" x-data="{ hover: false, shown: false }"
+                            x-init="setTimeout(() => { shown = true }, 1800)" x-on:mouseenter="hover = true"
+                            x-on:mouseleave="hover = false" :class="{ 'opacity-100': shown, 'opacity-0': !shown }">
+                            <div class="relative transition-all duration-500" :class="{ 'transform scale-105': hover }">
+                                <div class="absolute inset-0 bg-blue-600 rounded-lg transform -rotate-6 transition-all duration-500"
+                                    :class="{ 'bg-blue-400 -rotate-8': hover }"></div>
                                 <img src="cre-blue-gray.jpg" alt="CRE Holdings"
-                                    class="rounded-lg relative z-10 w-full">
+                                    class="rounded-lg relative z-10 w-full transition-all duration-500"
+                                    :class="{ 'shadow-2xl': hover }">
                             </div>
                         </div>
                     </div>
-
-                    <div class="mb-16 text-center">
-                        <h3 class="text-3xl font-bold mb-4">Why Choose CRE Holdings</h3>
-                        <p class="text-lg text-gray-300 max-w-3xl mx-auto">Our unique approach sets us apart in the
+        
+                    <div class="mb-16 text-center opacity-0" x-data="{ shown: false }"
+                        x-init="setTimeout(() => { shown = true }, 2000)"
+                        :class="{ 'opacity-100': shown, 'opacity-0': !shown }">
+                        <h3 class="text-3xl font-bold mb-4 transition-all duration-300 hover:text-blue-400">Why Choose CRE
+                            Holdings</h3>
+                        <p class="text-lg text-gray-300 max-w-3xl mx-auto transition-all duration-300 hover:text-white">Our
+                            unique approach sets us apart in the
                             commercial real estate market.</p>
                     </div>
-
+        
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div
-                            class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                            <div class="text-blue-400 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl opacity-0"
+                            x-data="{ shown: false }" x-init="setTimeout(() => { shown = true }, 2200)"
+                            :class="{ 'opacity-100 translate-x-0': shown, 'opacity-0 -translate-x-8': !shown }">
+                            <div class="text-blue-400 mb-4 transition-all duration-300 hover:text-blue-300 hover:scale-110">
+                                <i class="fa-solid fa-dollar-sign text-5xl"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-3 transition-all duration-300 hover:text-blue-400">Capital
+                                Capacity</h4>
+                            <p class="text-gray-300 transition-all duration-300 hover:text-white">Regardless of the cycle, the
+                                deal size or the complexities
+                                involved, we have the capital capacity to close without lender involvement.</p>
+                        </div>
+        
+                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl opacity-0"
+                            x-data="{ shown: false }" x-init="setTimeout(() => { shown = true }, 2400)"
+                            :class="{ 'opacity-100 translate-x-0': shown, 'opacity-0 -translate-x-8': !shown }">
+                            <div class="text-blue-400 mb-4 transition-all duration-300 hover:text-blue-300 hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .8953 2 3 2 .895-3 2 1.343 2 3 2z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m-6-6h2m12 0h-2" />
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold mb-3">Capital Capacity</h4>
-                            <p class="text-gray-300">Regardless of the cycle, the deal size or the complexities involved, we have the capital capacity to close without lender involvement.</p>
+                            <h4 class="text-xl font-semibold mb-3 transition-all duration-300 hover:text-blue-400">Property
+                                Issues</h4>
+                            <p class="text-gray-300 transition-all duration-300 hover:text-white">We have the ability to close
+                                where others may not: negative cash
+                                flow, 100% vacancy, environmental issues, or extensive CAPX required for redevelopment.
+                            </p>
                         </div>
-                        
-                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                            <div class="text-blue-400 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        
+                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl opacity-0"
+                            x-data="{ shown: false }" x-init="setTimeout(() => { shown = true }, 2600)"
+                            :class="{ 'opacity-100 translate-x-0': shown, 'opacity-0 -translate-x-8': !shown }">
+                            <div class="text-blue-400 mb-4 transition-all duration-300 hover:text-blue-300 hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold mb-3">Property Issues</h4>
-                            <p class="text-gray-300">We have the ability to close where others may not: negative cash flow, 100% vacancy, environmental issues, or extensive CAPX required for redevelopment.</p>
+                            <h4 class="text-xl font-semibold mb-3 transition-all duration-300 hover:text-blue-400">Close Quickly
+                            </h4>
+                            <p class="text-gray-300 transition-all duration-300 hover:text-white">We have the ability to take
+                                abnormal risks and can close quickly
+                                with limited due diligence.</p>
                         </div>
-                        
-                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                            <div class="text-blue-400 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        
+                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl opacity-0"
+                            x-data="{ shown: false }" x-init="setTimeout(() => { shown = true }, 2800)"
+                            :class="{ 'opacity-100 translate-x-0': shown, 'opacity-0 -translate-x-8': !shown }">
+                            <div class="text-blue-400 mb-4 transition-all duration-300 hover:text-blue-300 hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold mb-3">Close Quickly</h4>
-                            <p class="text-gray-300">We have the ability to take abnormal risks and can close quickly with limited due diligence.</p>
+                            <h4 class="text-xl font-semibold mb-3 transition-all duration-300 hover:text-blue-400">Complex
+                                Estates</h4>
+                            <p class="text-gray-300 transition-all duration-300 hover:text-white">Our strategic relationships
+                                enable us to complete transactions that
+                                are more complicated and require more creativity than normal for large estates, complex
+                                tax planning, etc.</p>
                         </div>
-                        
-                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                            <div class="text-blue-400 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+        
+                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl opacity-0"
+                            x-data="{ shown: false }" x-init="setTimeout(() => { shown = true }, 3000)"
+                            :class="{ 'opacity-100 translate-x-0': shown, 'opacity-0 -translate-x-8': !shown }">
+                            <div class="text-blue-400 mb-4 transition-all duration-300 hover:text-blue-300 hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold mb-3">Complex Estates</h4>
-                            <p class="text-gray-300">Our strategic relationships enable us to complete transactions that are more complicated and require more creativity than normal for large estates, complex tax planning, etc.</p>
-                        </div>
-                        
-                        <div class="bg-gray-800 rounded-xl p-8 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                            <div class="text-blue-400 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold mb-3">Two Decision Makers</h4>
-                            <p class="text-gray-300">There are only two decision-makers involved to make strategic decisions, no boards, no bankers, no investors, etc.</p>
+                            <h4 class="text-xl font-semibold mb-3 transition-all duration-300 hover:text-blue-400">Two Decision
+                                Makers</h4>
+                            <p class="text-gray-300 transition-all duration-300 hover:text-white">There are only two
+                                decision-makers involved to make strategic
+                                decisions, no boards, no bankers, no investors, etc.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <!-- Contact Section -->
-        <section 
-            x-show="activeSection === 'contact'"
-            x-transition:enter="transition-opacity duration-500"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity duration-500"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="min-h-screen bg-gray-900 pt-24"
-        >
+        <section x-show="activeSection === 'contact'" x-transition:enter="transition-opacity duration-500"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" class="min-h-screen bg-gray-900 pt-24">
             <div class="container mx-auto px-6 py-16">
-                <div class="mb-16 text-center">
+                <div class="mb-16 text-center contact-title" data-aos="fade-down" data-aos-duration="800">
                     <h2 class="text-4xl md:text-5xl font-bold text-gradient mb-4">Contact Us</h2>
                     <div class="w-24 h-1 bg-blue-500 mx-auto"></div>
                 </div>
-                
+
                 <div class="max-w-6xl mx-auto">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        <div>
-                            <div class="glass-card p-8 rounded-xl mb-8">
-                                <h3 class="text-2xl font-bold mb-6">Get In Touch</h3>
+                        <div class="contact-info-container" data-aos="fade-right" data-aos-duration="1000"
+                            data-aos-delay="200">
+                            <div class="glass-card p-8 rounded-xl mb-8 contact-info-card hover-scale">
+                                <h3 class="text-2xl font-bold mb-6 text-reveal">Get &nbsp; In &nbsp; Touch</h3>
                                 <div class="space-y-4">
-                                    <div class="flex items-start">
-                                        <div class="text-blue-400 mr-4 mt-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <div class="flex items-start contact-item" data-aos="fade-up" data-aos-delay="300">
+                                        <div class="text-blue-400 mr-4 mt-1 contact-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                         </div>
                                         <div>
                                             <h4 class="font-semibold">Address</h4>
-                                            <p class="text-gray-300">2727 N. Cascade Avenue, Suite 127<br>Colorado Springs, CO 80907</p>
+                                            <p class="text-gray-300">2727 N. Cascade Avenue, Suite 127<br>Colorado
+                                                Springs, CO 80907</p>
                                         </div>
                                     </div>
-                                    
-                                    <div class="flex items-start">
-                                        <div class="text-blue-400 mr-4 mt-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+
+                                    <div class="flex items-start contact-item" data-aos="fade-up" data-aos-delay="400">
+                                        <div class="text-blue-400 mr-4 mt-1 contact-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
                                         </div>
                                         <div>
@@ -657,11 +1049,13 @@
                                             <p class="text-gray-300">719.227.9987</p>
                                         </div>
                                     </div>
-                                    
-                                    <div class="flex items-start">
-                                        <div class="text-blue-400 mr-4 mt-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+
+                                    <div class="flex items-start contact-item" data-aos="fade-up" data-aos-delay="500">
+                                        <div class="text-blue-400 mr-4 mt-1 contact-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
                                         </div>
                                         <div>
@@ -671,42 +1065,59 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="rounded-xl overflow-hidden" style="height:320px">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3106.29120729516!2d-104.82457882421106!3d38.87157877172955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87134f8cab669095%3A0xea69796e59cc5590!2s2727%20N%20Cascade%20Ave%20%23127%2C%20Colorado%20Springs%2C%20CO%2080907%2C%20USA!5e0!3m2!1sen!2sin!4v1740890545645!5m2!1sen!2sin"" width="100%" height="110%" style="border:0;" allowfullscreen=""
-                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+
+                            <div class="rounded-xl overflow-hidden map-container hover-float" style="height:320px"
+                                data-aos="zoom-in" data-aos-delay="600">
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3106.29120729516!2d-104.82457882421106!3d38.87157877172955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87134f8cab669095%3A0xea69796e59cc5590!2s2727%20N%20Cascade%20Ave%20%23127%2C%20Colorado%20Springs%2C%20CO%2080907%2C%20USA!5e0!3m2!1sen!2sin!4v1740890545645!5m2!1sen!2sin"
+                                    width="
+                                    100%" height="110%" style="border:0;" allowfullscreen="" loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
                                 </iframe>
                             </div>
                         </div>
-                        
-                        <div>
-                            <div class="glass-card p-8 rounded-xl">
-                                <h3 class="text-2xl font-bold mb-6">Send Us A Message</h3>
-                                <form name="contact" method="POST" data-netlify="true" class="space-y-6">
+
+                        <div class="form-container" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                            <div class="glass-card p-8 rounded-xl form-card hover-scale">
+                                <h3 class="heading-animation text-2xl font-bold mb-6 text-reveal">Send &nbsp; Us &nbsp;
+                                    A &nbsp; Message</h3>
+                                <form name="contact" method="POST" data-netlify="true" class="space-y-6 contact-form">
                                     <input type="hidden" name="form-name" value="contact">
-                                    
-                                    <div>
-                                        <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Name</label>
-                                        <input type="text" id="name" name="name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+
+                                    <div class="form-field" data-aos="fade-up" data-aos-delay="300">
+                                        <label for="name"
+                                            class="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                                        <input type="text" id="name" name="name"
+                                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-animation"
+                                            required>
                                     </div>
-                                    
-                                    <div>
-                                        <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                                        <input type="email" id="email" name="email" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+
+                                    <div class="form-field" data-aos="fade-up" data-aos-delay="400">
+                                        <label for="email"
+                                            class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                        <input type="email" id="email" name="email"
+                                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-animation"
+                                            required>
                                     </div>
-                                    
-                                    <div>
-                                        <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">Phone</label>
-                                        <input type="tel" id="phone" name="phone" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+                                    <div class="form-field" data-aos="fade-up" data-aos-delay="500">
+                                        <label for="phone"
+                                            class="block text-sm font-medium text-gray-300 mb-2">Phone</label>
+                                        <input type="tel" id="phone" name="phone"
+                                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-animation">
                                     </div>
-                                    
-                                    <div>
-                                        <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Message</label>
-                                        <textarea id="message" name="message" rows="5" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></textarea>
+
+                                    <div class="form-field" data-aos="fade-up" data-aos-delay="600">
+                                        <label for="message"
+                                            class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                                        <textarea id="message" name="message" rows="5"
+                                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-animation"
+                                            required></textarea>
                                     </div>
-                                    
-                                    <div>
-                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-lg">
+
+                                    <div class="form-field" data-aos="fade-up" data-aos-delay="700">
+                                        <button type="submit"
+                                            class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-lg button-pulse">
                                             Send Message
                                         </button>
                                     </div>
@@ -717,30 +1128,184 @@
                 </div>
             </div>
         </section>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.from(".contact-info-card", {
+                    scrollTrigger: {
+                        trigger: ".contact-info-card",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    x: -200,  
+                    opacity: 0,
+                    duration: 1.2, 
+                    ease: "power3.out"
+                });
+
+                gsap.from(".form-card", {
+                    scrollTrigger: {
+                        trigger: ".form-card",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    x: 200, 
+                    opacity: 0,
+                    duration: 1.2,
+                    ease: "power3.out"
+                });
+
+
+                gsap.from(".contact-title", {
+                    scrollTrigger: {
+                        trigger: ".contact-title",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    y: -80, 
+                    opacity: 0,
+                    duration: 1.2,
+                    delay: 1,
+                    ease: "back.out(2)"  
+                });
+
+        
+                gsap.utils.toArray(".text-reveal").forEach(text => {
+                    text.style.opacity = 1;
+                    text.style.visibility = "visible";
+
+                    let chars = text.textContent.split("");
+                    text.textContent = "";
+
+                    chars.forEach((char, i) => {
+                        let span = document.createElement("span");
+                        span.textContent = char;
+                        span.style.opacity = 0;
+                        span.style.display = "inline-block";
+                        text.appendChild(span);
+
+                        gsap.to(span, {
+                            scrollTrigger: {
+                                trigger: text,
+                                start: "top 80%",
+                                toggleActions: "play none none none"
+                            },
+                            opacity: 1,
+                            y: 0,
+                            scale: 1, 
+                            duration: 0.2,  
+                            delay: 0.08 * i,  
+                            ease: "back.out(1.5)",  
+                            from: { y: 30, scale: 0.5 }  
+                        });
+                    });
+                });
+
+                
+                gsap.from(".form-field", {
+                    scrollTrigger: {
+                        trigger: ".contact-form",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    y: 60,  
+                    opacity: 0,
+                    duration: 1,
+                    stagger: 0.2,  
+                    delay: 1,
+                    ease: "back.out(1.4)"  
+                });
+
+       
+                gsap.from(".contact-item", {
+                    scrollTrigger: {
+                        trigger: ".contact-info-card",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    x: -50, 
+                    opacity: 0,
+                    duration: 0.8,
+                    delay: 1,
+                    stagger: 0.2,  
+                    ease: "power2.out"
+                });
+
+                
+                gsap.from(".map-container", {
+                    scrollTrigger: {
+                        trigger: ".map-container",
+                        start: "top 85%",
+                        toggleActions: "play none none none"
+                    },
+                    scale: 0.7, 
+                    opacity: 0,
+                    delay: 1,
+                    duration: 1.5,
+                    ease: "elastic.out(1, 0.3)"  
+                });
+
+             
+                gsap.from(".contact-icon", {
+                    scrollTrigger: {
+                        trigger: ".contact-info-card",
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    },
+                    rotate: -180,  
+                    scale: 0,  
+                    opacity: 0,
+                    duration: 1,
+                    stagger: 0.2,
+                    ease: "back.out(1.7)"
+                });
+
+
+                gsap.to(".button-pulse", {
+                    scrollTrigger: {
+                        trigger: ".button-pulse",
+                        start: "top 90%",
+                        toggleActions: "play none none none"
+                    },
+                    scale: 1.05,
+                    duration: 0.8,
+                    repeat: 3,
+                    yoyo: true,
+                    ease: "power1.inOut"
+                });
+            });
+        </script>
     </main>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-900 border-t border-gray-800">
         <div class="container mx-auto px-6 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
                     <div class="text-2xl font-bold">
-                        CRE<span class="text-blue-500">Holdings</span>
+                        <img src="cre-blue-gray.png" alt="CRE Holdings Logo" class="h-12 w-14">
                     </div>
                     <p class="text-gray-400 mt-2">Transforming spaces with vision and expertise</p>
                 </div>
-                
+
                 <div class="flex space-x-6">
-                    <a href="#" @click.prevent="activeSection = 'home'" class="text-gray-400 hover:text-blue-400 transition duration-300">Home</a>
-                    <a href="#" @click.prevent="activeSection = 'portfolio'" class="text-gray-400 hover:text-blue-400 transition duration-300">Portfolio</a>
-                    <a href="#" @click.prevent="activeSection = 'about'" class="text-gray-400 hover:text-blue-400 transition duration-300">About Us</a>
-                    <a href="#" @click.prevent="activeSection = 'contact'" class="text-gray-400 hover:text-blue-400 transition duration-300">Contact</a>
+                    <a href="#" @click.prevent="activeSection = 'home'"
+                        class="text-gray-400 hover:text-blue-400 transition duration-300">Home</a>
+                    <a href="#" @click.prevent="activeSection = 'portfolio'"
+                        class="text-gray-400 hover:text-blue-400 transition duration-300">Portfolio</a>
+                    <a href="#" @click.prevent="activeSection = 'about'"
+                        class="text-gray-400 hover:text-blue-400 transition duration-300">About Us</a>
+                    <a href="#" @click.prevent="activeSection = 'contact'"
+                        class="text-gray-400 hover:text-blue-400 transition duration-300">Contact</a>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
                 <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2025 CRE Holdings, LLC. All rights reserved.</p>
-                
+
                 <div class="flex space-x-4">
                     <a href="#" class="text-gray-400 hover:text-blue-400 transition duration-300">
                         <span class="sr-only">Privacy Policy</span>
@@ -755,5 +1320,6 @@
         </div>
     </footer>
 </body>
+
 </html>
 </antArtifact>
